@@ -6,6 +6,9 @@ lowPtGsfElectronLatestID = lowPtGsfElectronID.clone()
 lowPtGsfElectronLatestID.electrons = 'slimmedLowPtElectrons'
 lowPtGsfElectronLatestID.rho = 'fixedGridRhoFastjetAll'
 
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronNNID_cff import lowPtGsfElectronNNID
+lowPtGsfElectronLatestNNID = lowPtGsfElectronNNID.clone()
+
 ##essentially the commented out can be inside the same loop... no need to have a more loops in an "expensive" object
 '''lowptElectronsWithSeed = cms.EDProducer(
   'PATLowPtElectronSeedingEmbedder',
@@ -90,6 +93,7 @@ electronsForAnalysis = cms.EDProducer(
   ptbiasedSeeding = cms.InputTag("lowPtGsfElectronSeedValueMaps","ptbiased","RECO"),
   unbiasedSeeding = cms.InputTag("lowPtGsfElectronSeedValueMaps","unbiased","RECO"),
   mvaId = cms.InputTag("lowPtGsfElectronLatestID"),
+  nnId = cms.InputTag("lowPtGsfElectronLatestNNID"),
   pfmvaId = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2BParkRetrainRawValues"),
   vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
   ## cleaning wrt trigger muon [-1 == no cut]
@@ -139,6 +143,7 @@ electronBParkTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         ptBiased = Var("userFloat('ptBiased')",float,doc="ptBiased from seed BDT 20 for pfEle"), 
         unBiased = Var("userFloat('unBiased')",float,doc="unBiased from seed BDT 20 for pfEle"), 
         mvaId = Var("userFloat('mvaId')",float,doc="MVA ID for low pT, 20 for pfEle"),
+        nnId = Var("userFloat('nnId')",float,doc="MVA ID for low pT based on NN, 20 for pfEle"),
         pfmvaId = Var("userFloat('pfmvaId')",float,doc="MVA ID for pfEle, 20 for low pT"),
         fBrem = Var("fbrem()",float,doc="brem fraction from the gsf fit",precision=8),
         isPFoverlap = Var("userInt('isPFoverlap')",bool,doc="flag lowPt ele overlapping with pf in selected_pf_collection",precision=8),
@@ -178,6 +183,7 @@ electronBParkMCTable = cms.EDProducer("CandMCMatchTableProducerBPark",
 
 electronsBParkSequence = cms.Sequence(
   lowPtGsfElectronLatestID
+  +lowPtGsfElectronLatestNNID
   +egmGsfElectronIDSequence
   +electronsForAnalysis
 )
